@@ -132,7 +132,10 @@ MEDIA_URL = '/media/'
 
 AUTH_USER_MODEL = 'account.User'
 
-
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'account.backends.EmailOrUsernameLogin',
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

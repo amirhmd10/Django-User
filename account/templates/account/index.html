@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Login and Signup Form</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'account/css/style.css' %}">
+
+    <!-- Boxicons CSS -->
+    <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+<section class="container forms">
+    <!-- Login Form -->
+    <div class="form login">
+        <div class="form-content">
+            <header>Login</header>
+            <form action="{% url 'account:login' %}" method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                {% for field in form %}
+                <div class="field input-field">
+                    {{ field }}
+                    {{ field.errors }}
+                    {% if field.name == 'password' %}
+                        <i class="bx bx-hide eye-icon"></i>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="field button-field">
+                    <button type="submit">Login</button>
+                </div>
+            </form>
+
+            <div class="form-link">
+                <span>Don't have an account?
+                    <a href="{% url 'account:signup' %}" class="link signup-link">Signup</a>
+                </span>
+            </div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="media-options">
+            <a href="#" class="field google">
+                <img src="{% static 'account/images/google.png' %}" alt="" class="google-img">
+                <span>Login with Google</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Signup Form -->
+    <div class="form signup">
+        <div class="form-content">
+            <header>Signup</header>
+            <form action="{% url 'account:signup' %}" method="post">
+                {% csrf_token %}
+                {{ signup_form.non_field_errors }}
+
+                {% for field in signup_form %}
+                <div class="field input-field">
+                    {{ field }}
+                    {{ field.errors }}
+                    {% if field.name == 'password1' or field.name == 'password2' %}
+                        <i class="bx bx-hide eye-icon"></i>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="field button-field">
+                    <button type="submit">Signup</button>
+                </div>
+            </form>
+
+            <div class="form-link">
+                <span>Already have an account?
+                    <a href="#" class="link login-link">Login</a>
+                </span>
+            </div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="media-options">
+            <a href="#" class="field google">
+                <img src="{% static 'account/images/google.png' %}" alt="" class="google-img">
+                <span>Login with Google</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript -->
+<script src="{% static 'account/js/script.js' %}"></script>
+</body>
+</html>
