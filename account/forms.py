@@ -81,9 +81,38 @@ class ProfileForm(forms.ModelForm):
 class EmailForm(forms.Form):
     email = forms.EmailField()
 
+
+
 class OTPForm(forms.Form):
     email = forms.EmailField()
     code = forms.CharField(max_length=6)
+
+
+class PasswordResetForm(forms.Form):
+    email = forms.EmailField()
+
+
+class SetNewPasswordForm(forms.Form):
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'Enter password'}) ,
+        label='Password'
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'Confirm password'}) ,
+        label='Password confirmation'
+    )
+    def clean(self):
+        cleaned_data = super().clean()
+        p1 = cleaned_data.get("password1")
+        p2 = cleaned_data.get("password2")
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError("passwords don't match")
+        validate_password(p1)
+        return cleaned_data
+
+
+
+
 
 
 # این گونه هم می توان دخیره کرد فقط این گونه پیاده سازی به صورت clear text ذخیره میکند.

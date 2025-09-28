@@ -76,3 +76,14 @@ class EmailOTP(models.Model):
         if self.blocked and timezone.now() < self.blocked:
             return True
         return False
+
+class PasswordReset(models.Model):
+    user = models.OneToOneField('User',on_delete=models.CASCADE)
+    token = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    attempts = models.PositiveIntegerField(default=0)
+
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timezone.timedelta(minutes=5)

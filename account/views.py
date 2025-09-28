@@ -1,19 +1,21 @@
+import code
 import secrets
 
+from django.conf import settings
 from django.core.mail import send_mail
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, CreateView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from .forms import UserSignUpForm, UserLoginForm, ProfileForm, EmailForm, OTPForm
+from .forms import UserSignUpForm, UserLoginForm, ProfileForm, EmailForm, OTPForm, PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import UpdateView
 from django.views.generic import TemplateView
-from .models import EmailOTP
+from .models import EmailOTP , PasswordReset
 
 
 
@@ -153,9 +155,55 @@ class VerifyEmailView(FormView):
 
 
 
+class PasswordResetRequestView (FormView):
+    template_name = "account/index.html"
+    form_class = PasswordResetForm
+    success_url = reverse_lazy("account:login")
+    
+    
+    def form_valid(self, form):
+        email = form.cleaned_data.get("email")
+        try :
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return super().form_valid(form)
+        
+        token = PasswordReset.objects.create(user=user)
+        
+        reset_url = self.request.build_absolute_uri(
+            reverse('account:password_reset_confirm', kwargs={'token': str(token.token)})
+        )
+        send_mail(
+            subject="Password Reset",
+            message= f'your code is {code}',
+            from_email= settings.Default_FROM_EMAIL,
+            recipient_list=[email],
+        )
+        return super().form_valid(form)
 
 
+class PasswordResetConfirmView (FormView):
+    template_name = "account/index.html"
+    form_class = EmailForm
+    success_url = reverse_lazy("account:login")
 
+    def dispatch(self, request, *args, **kwargs):
+        self.token = get_object_or_404(PasswordReset, token=kwargs['token'] , is_used=False)
+        if self.token.is_expired():
+            return redirect(self.get_success_url())
+        return super().dispatch(request, *args, **kwargs)
+
+
+    def form_valid(self, form):
+        password = form.cleaned_data.get("password1")
+        user = self.token.user
+        user.set_password(password)
+        user.save()
+
+
+        self.token.is_used = True
+        self.token.save()
+        return super().form_valid(form)
 
 
 
