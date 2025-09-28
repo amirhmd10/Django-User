@@ -23,7 +23,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, blank=True, null=True , unique=True)
+    username = models.CharField(max_length=15, blank=False ,null=False , unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     objects = UserManager()
@@ -37,7 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 def _get_avatar_path(obj , filename):
     now = timezone.now()
     base_path = "avatars"
-    new_filename = uuid.uuid5(uuid.NAMESPACE_DNS, obj.pk)
+    new_filename = uuid.uuid4()
     # uuid v4 not need anything and uuid.NAME_SPACE  not important
     ext = os.path.splitext(filename)[1]
     p  = os.path.join(base_path, now.strftime('%y/%m'), f'{new_filename}{ext}')
@@ -55,9 +55,24 @@ class Profile(models.Model):
     date_joined = models.DateTimeField(auto_now_add=True)
     last_activity = models.DateTimeField(null=True, blank=True)
     is_verified = models.BooleanField(default=False)
-    objects = UserManager()
+
 
     def __str__(self):
         return f"Profile of {self.user.email}"
 
 
+class EmailOTP(models.Model):
+    email = models.EmailField()
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    attempts = models.PositiveIntegerField(default=0)
+    blocked = models.DateTimeField(null=True, blank=True)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timezone.timedelta(minutes=5)
+
+    def is_blocked(self):
+        if self.blocked and timezone.now() < self.blocked:
+            return True
+        return False

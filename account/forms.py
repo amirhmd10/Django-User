@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-
 from .models import Profile
 
 
@@ -22,7 +21,7 @@ class UserSignUpForm(forms.ModelForm):
         fields = ['username','email']
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Enter username'}) ,
-            'email': forms.TextInput(attrs={'placeholder': 'Enter email'}) ,
+            'email': forms.EmailInput(attrs={'placeholder': 'Enter email'}) ,
         }
 
     def clean_password1(self):
@@ -60,10 +59,10 @@ class UserLoginForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        email = cleaned_data.get('email')
+        identifier = cleaned_data.get('email')
         password = cleaned_data.get('password')
-        if not email or not password:
-            raise forms.ValidationError("Invalid email or password")
+        if not identifier or not password:
+            raise forms.ValidationError("Invalid email/username or password")
         return cleaned_data
 
 
@@ -79,7 +78,12 @@ class ProfileForm(forms.ModelForm):
         }
 
 
+class EmailForm(forms.Form):
+    email = forms.EmailField()
 
+class OTPForm(forms.Form):
+    email = forms.EmailField()
+    code = forms.CharField(max_length=6)
 
 
 # این گونه هم می توان دخیره کرد فقط این گونه پیاده سازی به صورت clear text ذخیره میکند.
