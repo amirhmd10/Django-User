@@ -32,7 +32,7 @@ class LoginSignupView(TemplateView):
 
 
 class UserSignUpView(FormView):
-    template_name = "account/index.html"
+    template_name = "account/signup.html"
     form_class = UserSignUpForm
     success_url = reverse_lazy("account:login")
 
@@ -79,9 +79,9 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class RequestOTPView(FormView):
-    template_name = "account/index.html"
+    template_name = "account/request_otp.html"
     form_class = EmailForm
-    success_url = '/verify/'
+    success_url = reverse_lazy("account:verify_email")
 
     def form_valid(self, form):
         email = form.cleaned_data.get("email")
@@ -104,9 +104,9 @@ BLOCKED_TIME = 10
 
 
 class VerifyEmailView(FormView):
-    template_name = "account/index.html"
+    template_name = "account/verify_email.html"
     form_class = OTPForm
-    success_url = '/'
+    success_url = reverse_lazy("account:profile")
 
     def form_valid(self, form):
         email = form.cleaned_data.get("email")
@@ -156,7 +156,7 @@ class VerifyEmailView(FormView):
 
 
 class PasswordResetRequestView (FormView):
-    template_name = "account/index.html"
+    template_name = "account/password_reset_request.html"
     form_class = PasswordResetForm
     success_url = reverse_lazy("account:login")
     
@@ -183,8 +183,8 @@ class PasswordResetRequestView (FormView):
 
 
 class PasswordResetConfirmView (FormView):
-    template_name = "account/index.html"
-    form_class = EmailForm
+    template_name = "account/password_reset_confirm.html"
+    form_class = PasswordResetForm
     success_url = reverse_lazy("account:login")
 
     def dispatch(self, request, *args, **kwargs):

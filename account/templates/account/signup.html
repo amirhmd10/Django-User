@@ -1,0 +1,13 @@
+{% extends "account/base.html" %}
+{% block content %}
+<h2>ثبت‌نام</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">ایجاد حساب</button>
+</form>
+
+<p>قبلاً ثبت‌نام کرده‌اید؟
+    <a href="{% url 'account:login_user' %}">ورود</a>
+</p>
+{% endblock %}
